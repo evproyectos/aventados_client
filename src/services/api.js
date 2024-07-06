@@ -72,7 +72,7 @@ export const getUserInfo = async (token) => {
 
 export const updateUser = async (userData, token) => {
   try {
-    const response = await fetch(`${API_URL}/updateUser`, {
+    const response = await fetch(`${API_URL}/update`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

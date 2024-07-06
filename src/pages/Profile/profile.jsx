@@ -9,10 +9,55 @@ import Row from 'react-bootstrap/Row';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
-const Registration = () => {
+const Profile = () => {
     const navigate = useNavigate();
-    const { handleRegister, error, loading } = useAuth();
+    const {user, fetchUserInfo, handleUpdateUser, error, loading } = useAuth();
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    useEffect(() => {
+        fetchUserInfo();
+      }, []);
+
+    
+      useEffect(() => {
+        if (user) {
+            const formattedDate = user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '';
+            if(user === 'client') {
+                setFormData({
+                    ...formData,
+                    name: user.name || '',
+                    lastName: user.lastName || '',
+                    email: user.email || '',
+                    password: '',
+                    repeatPassword: '',
+                    idNumber: user.idNumber || '',
+                    phoneNumber: user.phoneNumber || '',
+                    birthDate: formattedDate,
+                    role: user.role || ''
+                });
+            }else {
+                setFormData({
+                    ...formData,
+                    name: user.name || '',
+                    lastName: user.lastName || '',
+                    email: user.email || '',
+                    password: '',
+                    repeatPassword: '',
+                    idNumber: user.idNumber || '',
+                    phoneNumber: user.phoneNumber || '',
+                    birthDate: formattedDate,
+                    role: user.role || '',
+                    plate: user.plate||'',
+                    brand: user.brand || '',
+                    model: user.model || '',
+                    year: user.year || ''
+                });
+            }
+            
+        }
+    }, [user]);
+    
+
     const [formData, setFormData] = useState({
         name: '',
         lastName: '',
@@ -22,15 +67,12 @@ const Registration = () => {
         idNumber: '',
         phoneNumber: '',
         birthDate: '',
-        role: 'client'
+        role: '',
+        plate: '',
+        brand: '',
+        model: '',
+        year: ''
     });
-    
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
-          navigate('/');
-      }
-  }, [navigate]);
 
     const [formErrors, setFormErrors] = useState({});
 
@@ -58,19 +100,22 @@ const Registration = () => {
         if (!formData.idNumber) errors.idNumber = "ID Number is required";
         if (!formData.phoneNumber) errors.phoneNumber = "Phone Number is required";
         if (!formData.birthDate) errors.birthDate = "Birth Date is required";
+        if (!formData.plate) errors.plate = "Car Plate is required";
+        if (!formData.brand) errors.brand = "Car brand is required";
+        if (!formData.model) errors.model = "Car model is required";
+        if (!formData.year) errors.year = "Car year is required";
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         if (validateForm()) {
             console.log(formData);
-            await handleRegister(formData);
+            await handleUpdateUser(formData);
             setShowSuccessMessage(true);
-            navigate('/');
-        }
+        } 
     };
 
     return (
@@ -79,11 +124,11 @@ const Registration = () => {
                 <div className="col-md-6">
                     <div className="text-center mb-4">
                         <img src="logo.png" alt="Aventones Logo" style={{ width: '100px' }} />
-                        <h2>User Registration</h2>
+                        <h2>Profile</h2>
                     </div>
                     {showSuccessMessage && (
                         <div className="alert alert-success" role="alert">
-                            Registration successful!
+                            Update successful!
                         </div>
                     )}
                     <form onSubmit={handleSubmit}>
@@ -198,8 +243,65 @@ const Registration = () => {
                             </Form.Group>
                         </Row>
 
-                        <Button type="submit" className="mb-2">
-                            Sign up
+                        {formData.role === 'driver' && (
+                            <div>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} className="mb-3" controlId="plate">
+                                        <Form.Label>Plate</Form.Label>
+                                        <Form.Control
+                                            placeholder="Plate"
+                                            value={formData.plate}
+                                            onChange={handleChange}
+                                            isInvalid={!!formErrors.plate}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.plate}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group as={Col} controlId="brand">
+                                        <Form.Label>Brand</Form.Label>
+                                        <Form.Control
+                                            value={formData.brand}
+                                            onChange={handleChange}
+                                            isInvalid={!!formErrors.brand}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.brand}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} className="mb-3" controlId="model">
+                                        <Form.Label>Model</Form.Label>
+                                        <Form.Control
+                                            placeholder="Model"
+                                            value={formData.model}
+                                            onChange={handleChange}
+                                            isInvalid={!!formErrors.model}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.model}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group as={Col} controlId="year">
+                                        <Form.Label>Year</Form.Label>
+                                        <Form.Control
+                                            value={formData.year}
+                                            onChange={handleChange}
+                                            isInvalid={!!formErrors.year}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.year}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
+                            </div>
+                        )}
+
+
+
+                        <Button onSubmit={handleSubmit} type="submit" className="mb-2">
+                            Update User
                         </Button>
                         <Row className='mb-3'>
                             <p as={Col}>Already a user? <a href="/login">Login here</a></p>
@@ -210,6 +312,6 @@ const Registration = () => {
             </div>
         </div>
     );
-}
+};
 
-export default Registration;
+export default Profile;
