@@ -10,6 +10,8 @@ import Registration from './pages/Register/register';
 import RegistrationDriver from './pages/Register/register_driver';
 import Profile from './pages/Profile/profile';
 import Rides from './pages/Rides/rides';
+import NewRide from './pages/Rides/newRides';
+import EditRide from './pages/Rides/editRides';
 
 
 function App() {
@@ -40,11 +42,29 @@ function App() {
           }
         />
 
-<Route
+        <Route
           path="/rides"
           element={
             <Layout>
               <ProtectedRoute element={<Rides />} />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/new-ride"
+          element={
+            <Layout>
+              <ProtectedRoute element={<NewRide />} />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/edit-ride/:id"
+          element={
+            <Layout>
+              <ProtectedRoute element={<EditRide />} />
             </Layout>
           }
         />

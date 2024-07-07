@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { login, register, getUserInfo, updateUser, deleteUser } from '../services/api';
+import { login, register, getUserInfo, updateUser, deleteUser } from '../services/authService';
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
