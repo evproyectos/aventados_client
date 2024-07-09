@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { login, register, getUserInfo, updateUser, deleteUser } from '../services/api';
+import { login, register, getUserInfo, updateUser, deleteUser } from '../services/authService';
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -33,6 +33,7 @@ const useAuth = () => {
       const data = await register(userData);
       setUser(data.user);
       localStorage.setItem('token', data.token);
+      console.log(data)
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,12 +52,15 @@ const useAuth = () => {
     setError(null);
     try {
       const data = await getUserInfo(token);
+      
       setUser(data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      
     }
+    
   };
 
   const handleUpdateUser = async (userData) => {

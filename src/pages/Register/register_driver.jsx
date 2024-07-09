@@ -9,10 +9,10 @@ import Row from 'react-bootstrap/Row';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
-const Registration = () => {
+
+const RegistrationDriver = () => {
     const navigate = useNavigate();
     const { handleRegister, error, loading } = useAuth();
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         lastName: '',
@@ -22,15 +22,19 @@ const Registration = () => {
         idNumber: '',
         phoneNumber: '',
         birthDate: '',
-        role: 'client'
+        role: 'client',
+        plate: '',
+        model: '',
+        brand: '',
+        year: ''
     });
-    
+
     useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
-          navigate('/');
-      }
-  }, [navigate]);
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/');
+        }
+    }, [navigate]);
 
     const [formErrors, setFormErrors] = useState({});
 
@@ -58,6 +62,10 @@ const Registration = () => {
         if (!formData.idNumber) errors.idNumber = "ID Number is required";
         if (!formData.phoneNumber) errors.phoneNumber = "Phone Number is required";
         if (!formData.birthDate) errors.birthDate = "Birth Date is required";
+        if (!formData.plate) errors.plate = "Plate is required";
+        if (!formData.model) errors.model = "Model is required";
+        if (!formData.brand) errors.brand = "Brand is required";
+        if (!formData.year) errors.year = "Year is required";
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -68,7 +76,6 @@ const Registration = () => {
         if (validateForm()) {
             console.log(formData);
             await handleRegister(formData);
-            setShowSuccessMessage(true);
             navigate('/');
         }
     };
@@ -81,11 +88,6 @@ const Registration = () => {
                         <img src="logo.png" alt="Aventones Logo" style={{ width: '100px' }} />
                         <h2>User Registration</h2>
                     </div>
-                    {showSuccessMessage && (
-                        <div className="alert alert-success" role="alert">
-                            Registration successful!
-                        </div>
-                    )}
                     <form onSubmit={handleSubmit}>
                         <Row className='mb-3'>
                             <Form.Group as={Col} controlId="name">
@@ -198,6 +200,62 @@ const Registration = () => {
                             </Form.Group>
                         </Row>
 
+                        <Row className='mb-3'>
+                            <Form.Group as={Col} controlId="plate">
+                                <Form.Label>Plate</Form.Label>
+                                <Form.Control
+                                    placeholder="Plate"
+                                    value={formData.plate}
+                                    onChange={handleChange}
+                                    isInvalid={!!formErrors.plate}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formErrors.plate}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group as={Col} controlId="model">
+                                <Form.Label>Model</Form.Label>
+                                <Form.Control
+                                    placeholder="Model"
+                                    value={formData.model}
+                                    onChange={handleChange}
+                                    isInvalid={!!formErrors.model}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formErrors.model}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Row>
+
+                        <Row className='mb-3'>
+                            <Form.Group as={Col} controlId="brand">
+                                <Form.Label>Brand</Form.Label>
+                                <Form.Control
+                                    placeholder="Brand"
+                                    value={formData.brand}
+                                    onChange={handleChange}
+                                    isInvalid={!!formErrors.brand}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formErrors.brand}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group as={Col} controlId="year">
+                                <Form.Label>Year</Form.Label>
+                                <Form.Control
+                                    placeholder="Year"
+                                    value={formData.year}
+                                    onChange={handleChange}
+                                    isInvalid={!!formErrors.year}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formErrors.year}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Row>
+
                         <Button type="submit" className="mb-2">
                             Sign up
                         </Button>
@@ -212,4 +270,4 @@ const Registration = () => {
     );
 }
 
-export default Registration;
+export default RegistrationDriver;

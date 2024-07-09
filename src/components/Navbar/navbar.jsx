@@ -51,7 +51,7 @@ const NavB = () => {
 
             <Dropdown.Menu>
               <Dropdown.Item onClick={logoutHandler} href="/login">Logout</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Settings</Dropdown.Item>
+              <Dropdown.Item href="/profile">Settings</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>  
 

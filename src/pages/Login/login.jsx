@@ -1,13 +1,21 @@
 import React, { useState } from "react";
 import "./login.css";
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import useAuth from "../../hooks/useAuth";
+import { useEffect } from "react";
 
 const Login = () => {
     const navigate = useNavigate(); // Use useNavigate instead of useHistory
     const { handleLogin, error, loading } = useAuth();
     const [credentials, setCredentials] = useState({ email: '', password: '' });
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/');
+        }
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
