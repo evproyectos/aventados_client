@@ -12,6 +12,7 @@ import Profile from './pages/Profile/profile';
 import Rides from './pages/Rides/rides';
 import NewRide from './pages/Rides/newRides';
 import EditRide from './pages/Rides/editRides';
+import Verification from './pages/Verification/verification';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/registerdriver" element={<RegistrationDriver />} />
+        <Route path="/verify" element={<Verification />} />
 
         <Route
           path="/"

@@ -303,10 +303,6 @@ const Profile = () => {
                         <Button onSubmit={handleSubmit} type="submit" className="mb-2">
                             Update User
                         </Button>
-                        <Row className='mb-3'>
-                            <p as={Col}>Already a user? <a href="/login">Login here</a></p>
-                            <p as={Col}>Register as driver? <a href="/registerdriver">Click here</a></p>
-                        </Row>
                     </form>
                 </div>
             </div>

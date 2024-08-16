@@ -35,6 +35,7 @@ export const login = async (credentials) => {
 };
 
 export const register = async (userData) => {
+  console.log(userData);
   try {
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
@@ -43,6 +44,7 @@ export const register = async (userData) => {
       },
       body: JSON.stringify(userData),
     });
+
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

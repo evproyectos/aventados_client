@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import useAuth from "../../hooks/useAuth";
 import { useEffect } from "react";
+import { auth, googleProvider } from "../../services/firebaseInit";
+import { signInWithPopup } from 'firebase/auth';
+
+
+
 
 const Login = () => {
     const navigate = useNavigate(); // Use useNavigate instead of useHistory
@@ -22,11 +27,44 @@ const Login = () => {
         setCredentials({ ...credentials, [name]: value });
     };
 
+    const handleGoogleSignIn = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const token = await result.user.getIdToken(); // Obtener el token JWT
+            
+
+            const response = await fetch('http://localhost:3001/user/verify-token', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token })
+              });
+
+              if (!response.ok) {
+                throw new Error('Error en la autenticación');
+              }
+          
+              const data = await response.json();
+              const customToken = data.token; // Suponiendo que tu API devuelve un campo `token`
+          
+              // Aquí es donde almacenas el token en localStorage
+              localStorage.setItem('token', customToken);
+              navigate('/');
+
+            
+        } catch (err) {
+          setError(err.message);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         await handleLogin(credentials);
         navigate('/');
     };
+
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100">
@@ -34,10 +72,10 @@ const Login = () => {
                 <Col md={12}>
                     <div className="text-center mb-4">
                         <img src="logo.png" alt="Aventones" className="mb-3" /> {/* Replace with your logo */}
-                        <h1>AVENTONES</h1>
+                        <h1>AVENTADOS</h1>
                     </div>
                     <div className="text-center mb-3">
-                        <Button variant="light" className="m-2">
+                        <Button onClick={handleGoogleSignIn} variant="light" className="m-2">
                             <i className="fa-brands fa-google px-2"></i> Sign in with Google
                         </Button>
                     </div>

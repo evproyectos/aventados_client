@@ -1,19 +1,22 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAuth from '../../hooks/useAuth';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { auth, googleProvider } from "../../services/firebaseInit";
+import { signInWithPopup, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const Registration = () => {
     const navigate = useNavigate();
+
     const { handleRegister, error, loading } = useAuth();
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [formData, setFormData] = useState({
+        uid: '1',
         name: '',
         lastName: '',
         email: '',
@@ -24,13 +27,19 @@ const Registration = () => {
         birthDate: '',
         role: 'client'
     });
-    
+
+    const [disabledFields, setDisabledFields] = useState({
+        name: false,
+        lastName: false,
+        email: false
+    });
+
     useEffect(() => {
       const token = localStorage.getItem('token');
       if (token) {
-          navigate('/');
+          navigate('/login');
       }
-  }, [navigate]);
+    }, [navigate]);
 
     const [formErrors, setFormErrors] = useState({});
 
@@ -40,6 +49,37 @@ const Registration = () => {
             ...formData,
             [id]: value
         });
+    };
+
+    const handleGoogleSignUp = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            
+
+            console.log(user.uid);
+
+            // Actualizar el formulario con los datos obtenidos de Google
+            setFormData({
+                ...formData,
+                name: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                email: user.email || '',
+                uid: user.uid || '',
+            });
+
+            // Deshabilitar los campos llenados con Google
+            setDisabledFields({
+                name: !!user.displayName,
+                lastName: !!user.displayName,
+                email: !!user.email
+            });
+
+        } catch (err) {
+            console.log(err);
+            setFormErrors({ general: err.message });
+        }
     };
 
     const validateForm = () => {
@@ -66,10 +106,26 @@ const Registration = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-            console.log(formData);
+
+
+            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+            const user = userCredential.user;
+    console.log('Usuario registrado:', user);
+
+            const userID = userCredential.user.uid;
+
+            setFormData({
+                ...formData,
+                uid: userID || '',
+            });
+
+
             await handleRegister(formData);
+
+            
+
             setShowSuccessMessage(true);
-            navigate('/');
+            navigate('/login');
         }
     };
 
@@ -95,6 +151,7 @@ const Registration = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     isInvalid={!!formErrors.name}
+                                    disabled={disabledFields.name}
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     {formErrors.name}
@@ -108,6 +165,7 @@ const Registration = () => {
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     isInvalid={!!formErrors.lastName}
+                                    disabled={disabledFields.lastName}
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     {formErrors.lastName}
@@ -123,6 +181,7 @@ const Registration = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 isInvalid={!!formErrors.email}
+                                disabled={disabledFields.email}
                             />
                             <Form.Control.Feedback type="invalid">
                                 {formErrors.email}
@@ -197,10 +256,16 @@ const Registration = () => {
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </Row>
-
+                        <div className="text-center mb-3">
                         <Button type="submit" className="mb-2">
                             Sign up
                         </Button>
+                        </div>
+                        <div className="text-center mb-3">
+                        <Button onClick={handleGoogleSignUp} variant="light" className="m-2">
+                            <i className="fa-brands fa-google px-2"></i> Sign up with Google
+                        </Button>
+                    </div>
                         <Row className='mb-3'>
                             <p as={Col}>Already a user? <a href="/login">Login here</a></p>
                             <p as={Col}>Register as driver? <a href="/registerdriver">Click here</a></p>

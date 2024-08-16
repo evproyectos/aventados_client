@@ -31,9 +31,9 @@ const useAuth = () => {
     setError(null);
     try {
       const data = await register(userData);
+      
       setUser(data.user);
-      localStorage.setItem('token', data.token);
-      console.log(data)
+      
     } catch (err) {
       setError(err.message);
     } finally {
