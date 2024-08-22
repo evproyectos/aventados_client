@@ -7,11 +7,14 @@ import {
   updateRide as updateRideApi,
   deleteRide as deleteRideApi,
   bookRide as bookRideApi,
+  fetchBookings as fetchBookingsApi,
+  updateBooking as updateBookingApi
 } from '../services/rideService';
 
 const useRides = () => {
   const [token, setToken] = useState(null); // State to hold the token
   const [rides, setRides] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [ride, setRide] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -123,8 +126,39 @@ const useRides = () => {
     }
   };
 
+  const fetchBookingsByDriver = async (driverId) => {
+    setLoading(true);
+    setError(null);
+    try {
+    
+      const data = await fetchBookingsApi(driverId, token);
+      setBookings(data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateBooking = async (id, bookingData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await updateBookingApi(id, bookingData, token);
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) => (booking._id === id ? data.ride : booking))
+      );
+      
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     rides,
+    bookings,
     ride,
     loading,
     error,
@@ -135,6 +169,8 @@ const useRides = () => {
     updateRide,
     deleteRide,
     bookRide,
+    fetchBookingsByDriver,
+    updateBooking,
     getToken
   };
 };

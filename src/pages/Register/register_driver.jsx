@@ -14,6 +14,7 @@ const RegistrationDriver = () => {
     const navigate = useNavigate();
     const { handleRegister, error, loading } = useAuth();
     const [formData, setFormData] = useState({
+        uid: '1',
         name: '',
         lastName: '',
         email: '',
@@ -22,11 +23,17 @@ const RegistrationDriver = () => {
         idNumber: '',
         phoneNumber: '',
         birthDate: '',
-        role: 'client',
+        role: 'driver',
         plate: '',
         model: '',
         brand: '',
         year: ''
+    });
+
+    const [disabledFields, setDisabledFields] = useState({
+        name: false,
+        lastName: false,
+        email: false
     });
 
     useEffect(() => {
@@ -44,6 +51,39 @@ const RegistrationDriver = () => {
             ...formData,
             [id]: value
         });
+    };
+
+    const handleGoogleSignUp = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            
+            
+
+            console.log(user);
+
+            // Actualizar el formulario con los datos obtenidos de Google
+            setFormData({
+                ...formData,
+                name: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                email: user.email || '',
+                uid: user.uid || '',
+            });
+
+            // Deshabilitar los campos llenados con Google
+            setDisabledFields({
+                name: !!user.displayName,
+                lastName: !!user.displayName,
+                email: !!user.email
+            });
+
+            console.log()
+
+        } catch (err) {
+            console.log(err);
+            setFormErrors({ general: err.message });
+        }
     };
 
     const validateForm = () => {
@@ -255,10 +295,16 @@ const RegistrationDriver = () => {
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </Row>
-
+<div className="text-center mb-3">
                         <Button type="submit" className="mb-2">
                             Sign up
                         </Button>
+                        </div>
+                        <div className="text-center mb-3">
+                        <Button onClick={handleGoogleSignUp} variant="light" className="m-2">
+                            <i className="fa-brands fa-google px-2"></i> Sign up with Google
+                        </Button>
+                    </div>
                         <Row className='mb-3'>
                             <p as={Col}>Already a user? <a href="/login">Login here</a></p>
                             <p as={Col}>Register as driver? <a href="/registerdriver">Click here</a></p>

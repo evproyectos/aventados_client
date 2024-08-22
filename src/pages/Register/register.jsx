@@ -55,10 +55,10 @@ const Registration = () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-
+            
             
 
-            console.log(user.uid);
+            console.log(user);
 
             // Actualizar el formulario con los datos obtenidos de Google
             setFormData({
@@ -75,6 +75,8 @@ const Registration = () => {
                 lastName: !!user.displayName,
                 email: !!user.email
             });
+
+            console.log()
 
         } catch (err) {
             console.log(err);
@@ -108,17 +110,7 @@ const Registration = () => {
         if (validateForm()) {
 
 
-            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-            const user = userCredential.user;
-    console.log('Usuario registrado:', user);
-
-            const userID = userCredential.user.uid;
-
-            setFormData({
-                ...formData,
-                uid: userID || '',
-            });
-
+        
 
             await handleRegister(formData);
 

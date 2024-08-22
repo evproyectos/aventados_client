@@ -32,6 +32,7 @@ const Login = () => {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
             const token = await result.user.getIdToken(); // Obtener el token JWT
+
             
 
             const response = await fetch('http://localhost:3001/user/verify-token', {
@@ -47,22 +48,22 @@ const Login = () => {
               }
           
               const data = await response.json();
-              const customToken = data.token; // Suponiendo que tu API devuelve un campo `token`
+              const customToken = data.userId; // Suponiendo que tu API devuelve un campo `token`
           
               // Aquí es donde almacenas el token en localStorage
-              localStorage.setItem('token', customToken);
-              navigate('/');
+              localStorage.setItem('userId', customToken);
+              navigate('/verify-pin');
 
             
         } catch (err) {
-          setError(err.message);
+          console.log(error);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         await handleLogin(credentials);
-        navigate('/');
+        navigate('/verify-pin');
     };
 
 

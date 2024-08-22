@@ -6,11 +6,6 @@ import useRides from '../../hooks/useRides';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
-const rides_v2 = [
-  { from: 'Quesada', to: 'Alajuela', seats: 2, car: 'Nissan Pathfinder 2015', fee: '$5' },
-  { from: 'Quesada', to: 'Naranjo', seats: 1, car: 'Toyota Corolla 2020', fee: '$10' },
-  { from: 'Aguas Zarcas', to: 'Naranjo', seats: 1, car: 'Ford Festiva 1990', fee: '--' },
-];
 
 const Rides = () => {
  

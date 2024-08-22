@@ -1,4 +1,5 @@
 const API_URL = 'http://localhost:3001/rides';
+const API_URL_Bookings = 'http://localhost:3001';
 
 const headers = (token) => ({
   'Content-Type': 'application/json',
@@ -29,6 +30,14 @@ const fetchRidesByDriver = async (driverId, token) => {
       } });
   if (!response.ok) throw new Error('Failed to fetch rides by driver');
   return response.json();
+};
+
+const fetchBookings = async (driverId, token) => {
+  const response = await fetch(`${API_URL_Bookings}/bookings/driver/${driverId}`, {headers: {
+    'Authorization': `Bearer ${token}`,
+  } });
+if (!response.ok) throw new Error('Failed to fetch rides by driver');
+return response.json();
 };
 
 const createRide = async (rideData, token) => {
@@ -102,6 +111,32 @@ const bookRide = async (id, token) => {
   return response.json();
 };
 
+const updateBooking = async (id, bookingData, token) => {
+  const token1 = localStorage.getItem('token'); // Use the token parameter instead of token1
+
+  try {
+    const response = await fetch(`${API_URL_Bookings}/bookings/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json', // Specify Content-Type for JSON
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update booking');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    throw error; // Re-throw the error to handle it outside if needed
+  }
+};
+
+
+
 export {
   fetchRides,
   fetchRideById,
@@ -110,4 +145,6 @@ export {
   updateRide,
   deleteRide,
   bookRide,
+  fetchBookings,
+  updateBooking
 };

@@ -34,6 +34,27 @@ export const login = async (credentials) => {
   }
 };
 
+export const verifyPin = async (credentials) => {
+  try {
+    console.log(credentials);
+    const response = await fetch(`${API_URL}/verify_pin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error verifying pin in:", error);
+    throw error;
+  }
+}
+
 export const register = async (userData) => {
   console.log(userData);
   try {

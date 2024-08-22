@@ -31,7 +31,7 @@ const NavB = () => {
           >
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="/rides">Rides</Nav.Link>
-            <Nav.Link href="/booking">Bookings</Nav.Link>
+            <Nav.Link href="/bookings">Bookings</Nav.Link>
           </Nav>
           <Form className="d-flex">
             <Form.Control

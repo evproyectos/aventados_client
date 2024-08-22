@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { login, register, getUserInfo, updateUser, deleteUser } from '../services/authService';
+import { login, register, getUserInfo, updateUser, deleteUser, verifyPin } from '../services/authService';
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -11,6 +11,19 @@ const useAuth = () => {
     setError(null);
     try {
       const data = await login(credentials);
+      localStorage.setItem('userId', data.userId);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerificationPin = async (credentials) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await verifyPin(credentials);
       setUser(data.user);
       localStorage.setItem('token', data.token);
     } catch (err) {
@@ -18,7 +31,7 @@ const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleLogout = () => {
     setUser(null);
@@ -102,7 +115,7 @@ const useAuth = () => {
     }
   };
 
-  return { user, loading, error, handleLogin, handleLogout, handleRegister, fetchUserInfo, handleUpdateUser, handleDeleteUser };
+  return { user, loading, error, handleLogin, handleLogout, handleRegister, fetchUserInfo, handleUpdateUser, handleDeleteUser, handleVerificationPin };
 };
 
 export default useAuth;

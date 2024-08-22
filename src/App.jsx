@@ -13,15 +13,20 @@ import Rides from './pages/Rides/rides';
 import NewRide from './pages/Rides/newRides';
 import EditRide from './pages/Rides/editRides';
 import Verification from './pages/Verification/verification';
+import VerifyPin from './pages/Login/Verify_Pin/verifyPin';
+import Bookings from './pages/Bookings/bookings';
 
 
 function App() {
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDAML7UQ9iJXobcmpVPwSZdRYZei0BYZc&libraries=places"></script>
+
 
   return (
       <Router>
         
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-pin" element={<VerifyPin />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/registerdriver" element={<RegistrationDriver />} />
         <Route path="/verify" element={<Verification />} />
@@ -49,6 +54,15 @@ function App() {
           element={
             <Layout>
               <ProtectedRoute element={<Rides />} />
+            </Layout>
+          }
+        />
+
+<Route
+          path="/bookings"
+          element={
+            <Layout>
+              <ProtectedRoute element={<Bookings />} />
             </Layout>
           }
         />
