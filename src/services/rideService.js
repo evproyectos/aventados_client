@@ -40,6 +40,14 @@ if (!response.ok) throw new Error('Failed to fetch rides by driver');
 return response.json();
 };
 
+const fetchBookingsByPassenger = async (driverId, token) => {
+  const response = await fetch(`${API_URL_Bookings}/bookings/passenger/${driverId}`, {headers: {
+    'Authorization': `Bearer ${token}`,
+  } });
+if (!response.ok) throw new Error('Failed to fetch rides by passenger');
+return response.json();
+};
+
 const createRide = async (rideData, token) => {
   try {
     const response = await fetch(`${API_URL}`, {
@@ -146,5 +154,6 @@ export {
   deleteRide,
   bookRide,
   fetchBookings,
-  updateBooking
+  updateBooking,
+  fetchBookingsByPassenger,
 };
