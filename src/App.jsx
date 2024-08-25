@@ -15,6 +15,7 @@ import EditRide from './pages/Rides/editRides';
 import Verification from './pages/Verification/verification';
 import VerifyPin from './pages/Login/Verify_Pin/verifyPin';
 import Bookings from './pages/Bookings/bookings';
+import RequestStatus from './pages/Status/request_status';
 
 
 function App() {
@@ -45,6 +46,15 @@ function App() {
           element={
             <Layout>
               <ProtectedRoute element={<Profile />} />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/status"
+          element={
+            <Layout>
+              <ProtectedRoute element={<RequestStatus />} />
             </Layout>
           }
         />
