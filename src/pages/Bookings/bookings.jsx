@@ -20,6 +20,7 @@ const Bookings = () => {
 
     useEffect(() => {
         fetchUserInfo();
+        console.log(user);
     }, []);
 
     useEffect(() => {

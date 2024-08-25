@@ -12,7 +12,7 @@ const NavB = () => {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
+  }, [user]);
 
   const logoutHandler = () => {
     handleLogout();
@@ -29,10 +29,16 @@ const NavB = () => {
             navbarScroll
           >
             <Nav.Link href="/">Home</Nav.Link>
-            {user.role === 'driver' && (
+            {user?.role === 'driver' && (
               <>
                 <Nav.Link href="/rides">Rides</Nav.Link>
                 <Nav.Link href="/bookings">Bookings</Nav.Link>
+              </>
+            )}
+
+            {user?.role === 'client' && (
+              <>
+                <Nav.Link href="/status">Request Status</Nav.Link>
               </>
             )}
           </Nav>

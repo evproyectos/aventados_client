@@ -8,7 +8,8 @@ import {
   deleteRide as deleteRideApi,
   bookRide as bookRideApi,
   fetchBookings as fetchBookingsApi,
-  updateBooking as updateBookingApi
+  updateBooking as updateBookingApi,
+  fetchBookingsByPassenger as fetchBookingsByPassengerApi
 } from '../services/rideService';
 
 const useRides = () => {
@@ -63,6 +64,20 @@ const useRides = () => {
     
       const data = await fetchRidesByDriverApi(driverId, token);
       setRides(data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRidesByPassenger = async (passengerId) => {
+    setLoading(true);
+    setError(null);
+    try {
+    
+      const data = await fetchBookingsByPassengerApi(passengerId, token);
+      setBookings(data);
     } catch (err) {
       setError(err);
     } finally {
@@ -165,6 +180,7 @@ const useRides = () => {
     fetchRides,
     fetchRideById,
     fetchRidesByDriver,
+    fetchRidesByPassenger,
     createRide,
     updateRide,
     deleteRide,
