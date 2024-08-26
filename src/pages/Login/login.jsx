@@ -72,7 +72,6 @@ const Login = () => {
             <Row>
                 <Col md={12}>
                     <div className="text-center mb-4">
-                        <img src="logo.png" alt="Aventones" className="mb-3" /> {/* Replace with your logo */}
                         <h1>AVENTADOS</h1>
                     </div>
                     <div className="text-center mb-3">

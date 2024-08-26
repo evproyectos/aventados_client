@@ -6,16 +6,28 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Dropdown from 'react-bootstrap/Dropdown';
 import useAuth from '../../hooks/useAuth';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 const NavB = () => {
   const { handleLogout, user, fetchUserInfo } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserInfo();
-  }, [user]);
+  }, []);
 
   const logoutHandler = () => {
     handleLogout();
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm) {
+      navigate(`/search?destination=${searchTerm}`);
+    }
   };
 
   return (
@@ -23,11 +35,7 @@ const NavB = () => {
       <Container fluid>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
-          <Nav
-            className="me-auto my-2 my-lg-0"
-            style={{ maxHeight: '100px' }}
-            navbarScroll
-          >
+          <Nav className="me-auto my-2 my-lg-0" style={{ maxHeight: '100px' }} navbarScroll>
             <Nav.Link href="/">Home</Nav.Link>
             {user?.role === 'driver' && (
               <>
@@ -35,20 +43,18 @@ const NavB = () => {
                 <Nav.Link href="/bookings">Bookings</Nav.Link>
               </>
             )}
-
-            {user?.role === 'client' && (
-              <>
-                <Nav.Link href="/status">Request Status</Nav.Link>
-              </>
-            )}
+            {user?.role === 'client' && <Nav.Link href="/status">Request Status</Nav.Link>}
           </Nav>
-          <Form className="d-flex">
+          <Form className="d-flex" onSubmit={handleSearchSubmit}>
             <Form.Control
               type="search"
               placeholder="Search"
               className="me-2"
               aria-label="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <Button type="submit" variant="outline-success">Search</Button>
           </Form>
           <Dropdown>
             <Dropdown.Toggle variant="" id="dropdown-basic">

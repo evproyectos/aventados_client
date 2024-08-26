@@ -126,11 +126,11 @@ const useRides = () => {
     }
   };
 
-  const bookRide = async (id) => {
+  const bookRide = async (rideId) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await bookRideApi(id, token);
+      const data = await bookRideApi(rideId, token);
       setRides((prevRides) =>
         prevRides.map((ride) => (ride._id === id ? data.ride : ride))
       );

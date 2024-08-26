@@ -22,7 +22,7 @@ const Profile = () => {
       useEffect(() => {
         if (user) {
             const formattedDate = user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '';
-            if(user === 'client') {
+            if(user.role === 'client') {
                 setFormData({
                     ...formData,
                     name: user.name || '',
@@ -100,10 +100,14 @@ const Profile = () => {
         if (!formData.idNumber) errors.idNumber = "ID Number is required";
         if (!formData.phoneNumber) errors.phoneNumber = "Phone Number is required";
         if (!formData.birthDate) errors.birthDate = "Birth Date is required";
-        if (!formData.plate) errors.plate = "Car Plate is required";
-        if (!formData.brand) errors.brand = "Car brand is required";
-        if (!formData.model) errors.model = "Car model is required";
-        if (!formData.year) errors.year = "Car year is required";
+        console.log(user.role);
+        if(user.role === "driver") {
+            if (!formData.plate) errors.plate = "Car Plate is required";
+            if (!formData.brand) errors.brand = "Car brand is required";
+            if (!formData.model) errors.model = "Car model is required";
+            if (!formData.year) errors.year = "Car year is required";
+        }
+        
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -111,6 +115,7 @@ const Profile = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        console.log(validateForm());
         if (validateForm()) {
             console.log(formData);
             await handleUpdateUser(formData);

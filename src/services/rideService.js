@@ -109,11 +109,13 @@ const deleteRide = async (id, token) => {
 };
 
 const bookRide = async (id, token) => {
-  const response = await fetch(`${API_URL}/${id}/book`, {
+  const response = await fetch(`${API_URL_Bookings}/bookings/bookride`, {
     method: 'POST',
-   headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ rideId: id }),
   });
   if (!response.ok) throw new Error('Failed to book ride');
   return response.json();
