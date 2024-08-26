@@ -45,7 +45,9 @@ const NavB = () => {
             )}
             {user?.role === 'client' && <Nav.Link href="/status">Request Status</Nav.Link>}
           </Nav>
-          <Form className="d-flex" onSubmit={handleSearchSubmit}>
+
+          {user?.role === 'client' && (
+            <Form className="d-flex" onSubmit={handleSearchSubmit}>
             <Form.Control
               type="search"
               placeholder="Search"
@@ -56,6 +58,9 @@ const NavB = () => {
             />
             <Button type="submit" variant="outline-success">Search</Button>
           </Form>
+
+          )}
+          
           <Dropdown>
             <Dropdown.Toggle variant="" id="dropdown-basic">
               <i className="fas fa-user"></i>
