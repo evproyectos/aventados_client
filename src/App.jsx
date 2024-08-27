@@ -20,7 +20,7 @@ import SearchRides from './pages/SearchRides/search_rides';
 
 
 function App() {
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDAML7UQ9iJXobcmpVPwSZdRYZei0BYZc&libraries=places"></script>
+  
 
 
   return (
