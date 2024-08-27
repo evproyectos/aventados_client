@@ -1,5 +1,10 @@
 const API_URL = 'http://localhost:3001/user'; // Replace with your API URL
 
+/**
+ * Fetches data from the API.
+ * @returns {Promise<Object>} The data fetched from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const fetchData = async () => {
   try {
     const response = await fetch(`${API_URL}/data`);
@@ -13,6 +18,12 @@ export const fetchData = async () => {
   }
 };
 
+/**
+ * Logs in a user with the provided credentials.
+ * @param {Object} credentials - The user's login credentials.
+ * @returns {Promise<Object>} The response from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const login = async (credentials) => {
   try {
     console.log(credentials);
@@ -34,6 +45,12 @@ export const login = async (credentials) => {
   }
 };
 
+/**
+ * Verifies the provided PIN.
+ * @param {Object} credentials - The PIN verification credentials.
+ * @returns {Promise<Object>} The response from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const verifyPin = async (credentials) => {
   try {
     console.log(credentials);
@@ -50,11 +67,17 @@ export const verifyPin = async (credentials) => {
     }
     return await response.json();
   } catch (error) {
-    console.error("Error verifying pin in:", error);
+    console.error("Error verifying pin:", error);
     throw error;
   }
 }
 
+/**
+ * Registers a new user with the provided data.
+ * @param {Object} userData - The data for the new user.
+ * @returns {Promise<Object>} The response from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const register = async (userData) => {
   console.log(userData);
   try {
@@ -76,6 +99,12 @@ export const register = async (userData) => {
   }
 };
 
+/**
+ * Fetches user information using a provided token.
+ * @param {string} token - The authorization token for the request.
+ * @returns {Promise<Object>} The user information.
+ * @throws {Error} If the network response is not ok.
+ */
 export const getUserInfo = async (token) => {
   try {
     const response = await fetch(`${API_URL}/profile`, {
@@ -93,6 +122,13 @@ export const getUserInfo = async (token) => {
   }
 };
 
+/**
+ * Updates user information with the provided data and token.
+ * @param {Object} userData - The updated user data.
+ * @param {string} token - The authorization token for the request.
+ * @returns {Promise<Object>} The response from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const updateUser = async (userData, token) => {
   try {
     const response = await fetch(`${API_URL}/update`, {
@@ -113,6 +149,12 @@ export const updateUser = async (userData, token) => {
   }
 };
 
+/**
+ * Deletes a user using the provided token.
+ * @param {string} token - The authorization token for the request.
+ * @returns {Promise<Object>} The response from the API.
+ * @throws {Error} If the network response is not ok.
+ */
 export const deleteUser = async (token) => {
   try {
     const response = await fetch(`${API_URL}/deleteUser`, {

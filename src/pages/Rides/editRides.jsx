@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, Row, Col, Container, Modal } from 'react-bootstrap';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import TimePicker from 'react-bootstrap-time-picker';
 import useRides from '../../hooks/useRides';
 
+const libraries = ['places'];
+
 const EditRide = () => {
-    const { id } = useParams(); // Assuming you're using React Router to get the ride ID
+    const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         origin: '',
@@ -14,26 +17,30 @@ const EditRide = () => {
         departureTime: '',
         availableSeats: '',
         driver: {
-            brand:'',
+            brand: '',
             model: '',
-            year: ''},
+            year: ''
+        },
         errors: {}
     });
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
 
-    const { ride, fetchRideById ,updateRide } = useRides();
+    const { ride, fetchRideById, updateRide } = useRides();
+
+    const originRef = useRef(null);
+    const destinationRef = useRef(null);
+
+    const storedToken = localStorage.getItem('token');
 
     useEffect(() => {
-            fetchRideById(id);
-        
-    }, []);
-    
+        fetchRideById(id, storedToken);
+    }, [id]);
+
     useEffect(() => {
-        if(ride){
+        if (ride) {
             const formattedDate = ride.departureTime ? new Date(ride.departureTime).toISOString().split('T')[0] : '';
             const formattedTime = ride.departureTime ? new Date(ride.departureTime).toISOString().split('T')[1].substring(0, 8) : '';
-
 
             setFormData({
                 ...formData,
@@ -50,27 +57,14 @@ const EditRide = () => {
                 }
             });
         }
-        
-      }, [ride]);
+    }, [ride]);
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        if (type === 'checkbox') {
-            if (checked) {
-                setFormData({
-                    ...formData,
-                    date: [...formData.date, value]
-                });
-            } else {
-                setFormData({
-                    ...formData,
-                    date: formData.date.filter(day => day !== value)
-                });
-            }
-        } else {
+    const handlePlaceSelect = (name) => {
+        const place = name === 'origin' ? originRef.current.getPlace() : destinationRef.current.getPlace();
+        if (place) {
             setFormData({
                 ...formData,
-                [name]: value,
+                [name]: place.formatted_address,
                 errors: {
                     ...formData.errors,
                     [name]: ''
@@ -82,10 +76,9 @@ const EditRide = () => {
     const handleTimeChange = (value) => {
         const hours = Math.floor(value / 3600);
         const minutes = Math.floor((value % 3600) / 60);
-        
-        // Constructing the ISO 8601 time format
+
         const isoDateTime = `${formData.date}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00Z`;
-    
+
         setFormData({
             ...formData,
             departureTime: value,
@@ -116,19 +109,16 @@ const EditRide = () => {
     };
 
     const handleSubmit = async (e) => {
-        
         e.preventDefault();
         const errors = validateForm();
 
         const hours = Math.floor(formData.departureTime / 3600);
         const minutes = Math.floor((formData.departureTime % 3600) / 60);
-        
-        // Constructing the ISO 8601 time format
+
         const isoDateTime = `${formData.date}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00Z`;
         const dat = formData.date + "T" + formData.departureTime + "Z";
-        console.log(dat);
+        
         const final = {
-            
             availableSeats: formData.availableSeats,
             origin: formData.origin,
             destination: formData.destination,
@@ -137,9 +127,8 @@ const EditRide = () => {
         };
 
         if (Object.keys(errors).length === 0) {
-            console.log(final);
             try {
-                await updateRide(id,final);
+                await updateRide(id, final);
                 setShowModal(true);
                 setModalMessage('Ride updated successfully!');
             } catch (error) {
@@ -147,8 +136,7 @@ const EditRide = () => {
             }
         } else {
             setFormData({ ...formData, errors });
-        } 
-       console.log(formData);
+        }
     };
 
     const closeModal = () => {
@@ -157,179 +145,197 @@ const EditRide = () => {
     };
 
     return (
-        <Container className="d-flex justify-content-center mt-5">
-            <div className="w-75">
-                <h2 className="text-center mb-4">Edit Ride</h2>
-                <Form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col>
-                            <Form.Group controlId="origin">
-                                <Form.Label>Origin</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="origin" 
-                                    value={formData.origin} 
-                                    onChange={handleChange} 
-                                    isInvalid={!!formData.errors.origin}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.origin}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="destination">
-                                <Form.Label>Destination</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="destination" 
-                                    value={formData.destination} 
-                                    onChange={handleChange} 
-                                    isInvalid={!!formData.errors.destination}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.destination}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+        <LoadScript googleMapsApiKey="AIzaSyDDAML7UQ9iJXobcmpVPwSZdRYZei0BYZc" libraries={libraries}>
+            <Container className="d-flex justify-content-center mt-5">
+                <div className="w-75">
+                    <h2 className="text-center mb-4">Edit Ride</h2>
+                    <Form onSubmit={handleSubmit}>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="origin">
+                                    <Form.Label>Origin</Form.Label>
+                                    <Autocomplete
+                                        onLoad={(autocomplete) => originRef.current = autocomplete}
+                                        onPlaceChanged={() => handlePlaceSelect('origin')}
+                                    >
+                                        <Form.Control
+                                            type="text"
+                                            name="origin"
+                                            value={formData.origin}
+                                            onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+                                            isInvalid={!!formData.errors.origin}
+                                        />
+                                    </Autocomplete>
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.origin}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="destination">
+                                    <Form.Label>Destination</Form.Label>
+                                    <Autocomplete
+                                        onLoad={(autocomplete) => destinationRef.current = autocomplete}
+                                        onPlaceChanged={() => handlePlaceSelect('destination')}
+                                    >
+                                        <Form.Control
+                                            type="text"
+                                            name="destination"
+                                            value={formData.destination}
+                                            onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                                            isInvalid={!!formData.errors.destination}
+                                        />
+                                    </Autocomplete>
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.destination}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Form.Group>
-                        <Form.Label>Date</Form.Label>
-                        <div>
-                            <Form.Control
-                                type='date'
-                                name="date"
-                                value={formData.date}
-                                onChange={handleChange}
-                                isInvalid={!!formData.errors.date}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {formData.errors.date}
-                            </Form.Control.Feedback>
-                        </div>
-                    </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Date</Form.Label>
+                            <div>
+                                <Form.Control
+                                    type='date'
+                                    name="date"
+                                    value={formData.date}
+                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                    isInvalid={!!formData.errors.date}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {formData.errors.date}
+                                </Form.Control.Feedback>
+                            </div>
+                        </Form.Group>
 
-                    <Row>
-                        <Col>
-                            <Form.Group controlId="departureTime">
-                                <Form.Label>Departure Time</Form.Label>
-                                <TimePicker 
-                                    start="00:00" 
-                                    end="23:30" 
-                                    step={30} 
-                                    value={formData.departureTime}
-                                    onChange={handleTimeChange}
-                                    className={!!formData.errors.departureTime ? 'is-invalid' : ''}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.departureTime}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="availableSeats">
-                                <Form.Label>Seats</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="availableSeats" 
-                                    value={formData.availableSeats} 
-                                    onChange={handleChange} 
-                                    isInvalid={!!formData.errors.availableSeats}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.availableSeats}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="fee">
-                                <Form.Label>Fee</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="fee" 
-                                    value={formData.fee} 
-                                    onChange={handleChange}
-                                    isInvalid={!!formData.errors.fee}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.fee}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="departureTime">
+                                    <Form.Label>Departure Time</Form.Label>
+                                    <TimePicker
+                                        start="00:00"
+                                        end="23:30"
+                                        step={30}
+                                        value={formData.departureTime}
+                                        onChange={handleTimeChange}
+                                        className={!!formData.errors.departureTime ? 'is-invalid' : ''}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.departureTime}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="availableSeats">
+                                    <Form.Label>Seats</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="availableSeats"
+                                        value={formData.availableSeats}
+                                        onChange={(e) => setFormData({ ...formData, availableSeats: e.target.value })}
+                                        isInvalid={!!formData.errors.availableSeats}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.availableSeats}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="fee">
+                                    <Form.Label>Fee</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="fee"
+                                        value={formData.fee}
+                                        onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                                        isInvalid={!!formData.errors.fee}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.fee}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <h4 className="mt-4">Vehicle Details</h4>
-                    <Row>
-                        <Col>
-                            <Form.Group controlId="make">
-                                <Form.Label>Make</Form.Label>
-                                <Form.Control 
-                                    type="text"
-                                    name="make" 
-                                    value={formData.driver.brand} 
-                                    readOnly
-                                    isInvalid={!!formData.errors.make}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.make}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="model">
-                                <Form.Label>Model</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="model" 
-                                    value={formData.driver.model} 
-                                    onChange={handleChange} 
-                                    isInvalid={!!formData.errors.model}
-                                    readOnly
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.model}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="year">
-                                <Form.Label>Year</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    name="year" 
-                                    value={formData.driver.year} 
-                                    readOnly
-                                    isInvalid={!!formData.errors.year}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {formData.errors.year}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                        <h4 className="mt-4">Vehicle Details</h4>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="make">
+                                    <Form.Label>Make</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="brand"
+                                        value={formData.driver.brand}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            driver: { ...formData.driver, brand: e.target.value }
+                                        })}
+                                        isInvalid={!!formData.errors.make}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.make}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="model">
+                                    <Form.Label>Model</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="model"
+                                        value={formData.driver.model}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            driver: { ...formData.driver, model: e.target.value }
+                                        })}
+                                        isInvalid={!!formData.errors.model}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.model}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="year">
+                                    <Form.Label>Year</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="year"
+                                        value={formData.driver.year}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            driver: { ...formData.driver, year: e.target.value }
+                                        })}
+                                        isInvalid={!!formData.errors.year}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formData.errors.year}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <div className="d-flex justify-content-between mt-4">
-                        <Button variant="link" className="mb-3">
-                            <Link to="/rides">Cancel</Link>
+                        <Button variant="primary" type="submit" className="mt-4">
+                            Update Ride
                         </Button>
-                        <Button variant="primary" type="submit">Update</Button>
-                    </div>
-                </Form>
+                        <Link to="/rides" className="btn btn-secondary mt-4 ml-2">Cancel</Link>
+                    </Form>
 
-                <Modal show={showModal} onHide={closeModal}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Success</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>{modalMessage}</Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={closeModal}>
-                            Close
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </div>
-        </Container>
+                    <Modal show={showModal} onHide={closeModal}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Success</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>{modalMessage}</Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={closeModal}>
+                                OK
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+            </Container>
+        </LoadScript>
     );
 };
 
